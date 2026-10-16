@@ -1,0 +1,67 @@
+class HTMLInputCollection {
+    #defaultAttributes = {
+        name: "field-name",
+        title: "field-title",
+        id: "field-id",
+        class: "field-class",
+    };
+
+    _customAttributes = {
+        type: "text",
+        value: "",
+        onclick: () => {
+            alert("1");
+        },
+    };
+
+    _value = null;
+
+    _getAttributes(format = "default") {
+        let attributes = {};
+        Object.assign(attributes, this.#defaultAttributes);
+        Object.assign(attributes, this._customAttributes);
+        attributes.value = this._value;
+
+        return format === "string" ? this.#parseToString(attributes) : attributes;
+    }
+
+    #parseToString(attributes) {
+        return Object.keys(attributes)
+            .map((key) => {
+                // Handle functions like onclick
+                if (typeof attributes[key] === "function") {
+                    return `${key}="${attributes[key].toString()}"`;
+                }
+                return `${key}="${attributes[key]}"`;
+            })
+            .join(" ");
+    }
+
+    render() {
+        let attributes = this._getAttributes("string");
+        return `
+            <input ${attributes} />
+        `;
+    }
+}
+
+class DateField extends HTMLInputCollection {
+    constructor() {
+        super(); // Call the parent constructor
+        this._customAttributes = {
+            ...this._customAttributes, // Merge parent attributes
+            type: "date",
+        };
+        this._value = "2025/01/17"; // Override value
+    }
+
+    render() {
+        let attributes = this._getAttributes("string");
+        return `
+            <input ${attributes} />
+        `;
+    }
+}
+
+const dateField = new DateField();
+console.log(dateField.render());
